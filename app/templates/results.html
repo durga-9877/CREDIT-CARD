@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud Detection Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .transaction-card {
+            border-left: 4px solid;
+            transition: transform 0.2s;
+        }
+        .transaction-card:hover {
+            transform: translateY(-2px);
+        }
+        .fraudulent {
+            border-left-color: #dc3545;
+        }
+        .legitimate {
+            border-left-color: #198754;
+        }
+        .metrics-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        .block-hash {
+            font-family: monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <!-- Transaction Amount Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body text-center">
+                        <h2 class="card-title mb-0">Transaction Amount</h2>
+                        <p class="display-4 text-primary mt-3">${{ "%.2f"|format(amount) }}</p>
+                    </div>
+                </div>
+
+                <!-- Model Performance Metrics -->
+                <div class="card shadow-sm mb-4 metrics-card">
+                    <div class="card-body">
+                        <h3 class="card-title mb-4">Model Performance</h3>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h4 class="text-primary">{{ "%.2f"|format(metrics.accuracy * 100) }}%</h4>
+                                    <p class="text-muted">Accuracy</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h4 class="text-primary">{{ "%.2f"|format(metrics.precision * 100) }}%</h4>
+                                    <p class="text-muted">Precision</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h4 class="text-primary">{{ "%.2f"|format(metrics.recall * 100) }}%</h4>
+                                    <p class="text-muted">Recall</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h4 class="text-primary">{{ "%.2f"|format(metrics.f1 * 100) }}%</h4>
+                                    <p class="text-muted">F1 Score</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction Results -->
+                <h3 class="mb-4">Matching Transactions</h3>
+                {% for result in results %}
+                <div class="card shadow-sm mb-3 transaction-card {{ 'fraudulent' if result.prediction == 'Fraudulent' else 'legitimate' }}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="card-title mb-0">
+                                {{ result.prediction }}
+                                <span class="badge {{ 'bg-danger' if result.prediction == 'Fraudulent' else 'bg-success' }}">
+                                    {{ "%.2f"|format(result.confidence * 100) }}%
+                                </span>
+                            </h4>
+                            <small class="text-muted">{{ result.time }}</small>
+                        </div>
+                        <div class="block-hash">
+                            <strong>Block Hash:</strong> {{ result.block_hash }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

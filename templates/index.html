@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Card Fraud Detection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            --border-gradient: linear-gradient(90deg, rgba(75, 108, 183, 0.2), rgba(24, 40, 72, 0.2));
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 12px solid transparent;
+            border-image: var(--border-gradient);
+            border-image-slice: 1;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .header-bar {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+            pointer-events: none;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-title h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(to right, #ffffff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .header-logo {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-logo i {
+            font-size: 1.8rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .header-stats {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-stats i {
+            color: #43c6ac;
+        }
+
+        .main-content {
+            padding: 2rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            border-radius: 15px 15px 0 0 !important;
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            padding: 1.5rem;
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            padding: 1rem;
+            height: auto;
+            font-size: 1.1rem;
+        }
+
+        .form-control:focus {
+            border-color: #4b6cb7;
+            box-shadow: 0 0 0 0.25rem rgba(75, 108, 183, 0.25);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 0.8rem 2rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(75, 108, 183, 0.4);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            height: 100%;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .stat-card.total {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+        }
+
+        .stat-card.legitimate {
+            background: linear-gradient(135deg, #43c6ac 0%, #191654 100%);
+            color: white;
+        }
+
+        .stat-card.fraudulent {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            color: white;
+        }
+
+        .stat-card h3 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card p {
+            font-size: 1.1rem;
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .transaction-block {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 5px solid;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .transaction-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, rgba(75, 108, 183, 0.1), rgba(75, 108, 183, 0.05));
+        }
+
+        .transaction-block.Legitimate {
+            border-left-color: #43c6ac;
+            background: linear-gradient(135deg, rgba(67, 198, 172, 0.05) 0%, rgba(255, 255, 255, 1) 100%);
+        }
+
+        .transaction-block.Fraudulent {
+            border-left-color: #ff416c;
+            background: linear-gradient(135deg, rgba(255, 65, 108, 0.05) 0%, rgba(255, 255, 255, 1) 100%);
+        }
+
+        .transaction-block:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .transaction-block h5 {
+            color: #182848;
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .transaction-block p {
+            color: #2c3e50;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .transaction-block strong {
+            color: #182848;
+            font-weight: 600;
+        }
+
+        .prediction-badge {
+            padding: 0.5rem 1.2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 1.2rem;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .prediction-badge.Legitimate {
+            background-color: rgba(67, 198, 172, 0.2);
+            color: #43c6ac;
+            border: 1px solid rgba(67, 198, 172, 0.3);
+        }
+
+        .prediction-badge.Fraudulent {
+            background-color: rgba(255, 65, 108, 0.2);
+            color: #ff416c;
+            border: 1px solid rgba(255, 65, 108, 0.3);
+        }
+
+        .probability-bar {
+            height: 10px;
+            border-radius: 5px;
+            background: #e9ecef;
+            margin: 1.2rem 0;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .probability-bar .progress {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.6s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .probability-bar .Legitimate {
+            background: linear-gradient(to right, #43c6ac, #191654);
+        }
+
+        .probability-bar .Fraudulent {
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+        }
+
+        .blockchain-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .blockchain-section h3 {
+            color: #182848;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            font-size: 1.5rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .blockchain-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, #4b6cb7, #182848);
+            border-radius: 3px;
+        }
+
+        .hash-display {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: #f8f9fa;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            word-break: break-all;
+            border: 1px solid #e9ecef;
+            color: #2c3e50;
+            line-height: 1.5;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .hash-display::before {
+            content: 'Hash:';
+            display: block;
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-bottom: 0.3rem;
+            font-weight: 500;
+        }
+
+        .transaction-details {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .transaction-details p {
+            margin-bottom: 0.8rem;
+            color: #2c3e50;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .transaction-details strong {
+            color: #182848;
+            font-weight: 600;
+        }
+
+        .time-display {
+            color: #6c757d;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .time-display i {
+            color: #4b6cb7;
+        }
+
+        .amount-display {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #182848;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .amount-display i {
+            color: #4b6cb7;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .statistics-update {
+            animation: pulse 0.6s ease;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4b6cb7;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #182848;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Metric Cards Styling */
+        .metric-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .metric-card h4 {
+            color: #4b6cb7;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #182848;
+            margin-top: 0.5rem;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4b6cb7;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            max-width: 500px;
+            width: 90%;
+            display: none;
+            animation: popupFadeIn 0.3s ease-out;
+        }
+
+        .info-popup.active {
+            display: block;
+        }
+
+        .info-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+            display: none;
+            animation: overlayFadeIn 0.3s ease-out;
+        }
+
+        .info-popup-overlay.active {
+            display: block;
+        }
+
+        .info-popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-popup-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #182848;
+            margin: 0;
+        }
+
+        .info-popup-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        .info-popup-close:hover {
+            color: #182848;
+        }
+
+        .info-popup-content {
+            color: #444;
+            line-height: 1.6;
+        }
+
+        .info-popup-content p {
+            margin-bottom: 1rem;
+        }
+
+        .info-popup-content ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .info-popup-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .info-icon {
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .info-icon:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes popupFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        @keyframes overlayFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* New styles for better blockchain display */
+        .transaction-block {
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .transaction-block:hover {
+            transform: translateX(5px);
+        }
+        
+        .transaction-block h5 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .transaction-block h5 small {
+            font-size: 0.8rem;
+            margin-left: auto;
+        }
+        
+        .hash-display {
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.9rem;
+            background: #f8f9fa;
+            padding: 0.8rem;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .transaction-header h5 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .transaction-header h5 i {
+            color: #4b6cb7;
+        }
+
+        .hash-display {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .hash-display strong {
+            color: #182848;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .hash-value {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.8rem;
+            word-break: break-all;
+            color: #2c3e50;
+            line-height: 1.5;
+        }
+
+        .prediction-badge {
+            padding: 0.5rem 1.2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .prediction-badge.Legitimate {
+            background-color: rgba(67, 198, 172, 0.2);
+            color: #43c6ac;
+            border: 1px solid rgba(67, 198, 172, 0.3);
+        }
+
+        .prediction-badge.Fraudulent {
+            background-color: rgba(255, 65, 108, 0.2);
+            color: #ff416c;
+            border: 1px solid rgba(255, 65, 108, 0.3);
+        }
+
+        .probability-bar {
+            height: 10px;
+            border-radius: 5px;
+            background: #e9ecef;
+            margin: 1.2rem 0;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .probability-bar .progress {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.6s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .probability-bar .Legitimate {
+            background: linear-gradient(to right, #43c6ac, #191654);
+        }
+
+        .probability-bar .Fraudulent {
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .transaction-block {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .metrics-card {
+            background-color: #f8f9fa;
+        }
+        .prediction-result {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .fraudulent {
+            color: #dc3545;
+        }
+        .legitimate {
+            color: #198754;
+        }
+        .visualization {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Header Bar -->
+    <div class="header-bar">
+        <div class="header-content">
+            <div class="header-title">
+                <div class="header-logo">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div>
+                    <h1>Credit Card Fraud Detection</h1>
+                    <p class="header-subtitle">Advanced Security System</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="header-stats info-icon" onclick="showPopup('accuracyPopup')">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Model Accuracy: <span id="headerAccuracy">-</span></span>
+                </div>
+                <div class="header-stats info-icon" onclick="showPopup('precisionPopup')">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Success Rate: <span id="headerSuccess">-</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <!-- Model Performance Card -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-line"></i> Model Performance Metrics</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="metric-card info-icon" onclick="showPopup('accuracyPopup')">
+                                        <div class="metric-icon">
+                                            <i class="fas fa-bullseye"></i>
+                                        </div>
+                                        <h4>Accuracy</h4>
+                                        <div class="metric-value" id="accuracy">-</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="metric-card info-icon" onclick="showPopup('precisionPopup')">
+                                        <div class="metric-icon">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                        <h4>Precision</h4>
+                                        <div class="metric-value" id="precision">-</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="metric-card info-icon" onclick="showPopup('recallPopup')">
+                                        <div class="metric-icon">
+                                            <i class="fas fa-search"></i>
+                                        </div>
+                                        <h4>Recall</h4>
+                                        <div class="metric-value" id="recall">-</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="metric-card info-icon" onclick="showPopup('f1Popup')">
+                                        <div class="metric-icon">
+                                            <i class="fas fa-balance-scale"></i>
+                                        </div>
+                                        <h4>F1 Score</h4>
+                                        <div class="metric-value" id="f1Score">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="stat-card total info-icon" id="totalStatCard" onclick="showPopup('totalPopup')">
+                                <h3 id="totalTransactions">0</h3>
+                                <p>Total Transactions</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card legitimate info-icon" id="legitimateStatCard" onclick="showPopup('legitimatePopup')">
+                                <h3 id="legitimateTransactions">0</h3>
+                                <p>Legitimate Transactions</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card fraudulent info-icon" id="fraudulentStatCard" onclick="showPopup('fraudulentPopup')">
+                                <h3 id="fraudulentTransactions">0</h3>
+                                <p>Fraudulent Transactions</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Transaction Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-shield-alt"></i> Transaction Analysis</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="transactionForm">
+                                <div class="form-floating mb-4">
+                                    <input type="number" step="0.01" class="form-control" id="amount" required>
+                                    <label for="amount">Enter Transaction Amount ($)</label>
+                                </div>
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-search"></i> Analyze Transaction
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Current Transaction Result -->
+                    <div class="card mt-4" id="currentTransactionCard" style="display: none;">
+                        <div class="card-header">
+                            <h3><i class="fas fa-receipt"></i> Current Transaction</h3>
+                        </div>
+                        <div class="card-body" id="currentTransactionDetails">
+                            <!-- Current transaction details will be inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Blockchain Section -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h3><i class="fas fa-link"></i> Blockchain Ledger</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="blockchain-container">
+                                <div id="recent-transactions-list">
+                                    <!-- Recent transactions will be inserted here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Popups -->
+    <div class="info-popup" id="accuracyPopup">
+        <div class="info-popup-header">
+            <h3 class="info-popup-title">Model Accuracy</h3>
+            <button class="info-popup-close" onclick="closePopup('accuracyPopup')">&times;</button>
+        </div>
+        <div class="info-popup-content">
+            <p>Model accuracy represents the percentage of correctly classified transactions out of all transactions analyzed by our fraud detection system.</p>
+            <ul>
+                <li>High accuracy indicates reliable fraud detection</li>
+                <li>Current model accuracy: <span id="popupAccuracy">-</span></li>
+                <li>Based on extensive training with historical transaction data</li>
+                <li>Regularly updated to maintain high performance</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="info-popup" id="blockchainPopup">
+        <div class="info-popup-header">
+            <h3 class="info-popup-title">Blockchain Security</h3>
+            <button class="info-popup-close" onclick="closePopup('blockchainPopup')">&times;</button>
+        </div>
+        <div class="info-popup-content">
+            <p>Our blockchain implementation ensures secure and immutable transaction records:</p>
+            <ul>
+                <li>Each transaction is cryptographically hashed</li>
+                <li>Transactions are linked in a chain using previous hash references</li>
+                <li>Immutable record of all fraud detection activities</li>
+                <li>Real-time transaction verification</li>
+                <li>Secure audit trail for compliance</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="info-popup" id="precisionPopup">
+        <div class="info-popup-header">
+            <h3 class="info-popup-title">Precision</h3>
+            <button class="info-popup-close" onclick="closePopup('precisionPopup')">&times;</button>
+        </div>
+        <div class="info-popup-content">
+            <p>Precision measures the accuracy of our fraud detection system in identifying fraudulent transactions:</p>
+            <ul>
+                <li>High precision means fewer false positives</li>
+                <li>Current precision: <span id="popupPrecision">-</span></li>
+                <li>Critical for minimizing unnecessary transaction blocks</li>
+                <li>Balanced with recall for optimal performance</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="info-popup" id="recallPopup">
+        <div class="info-popup-header">
+            <h3 class="info-popup-title">Recall</h3>
+            <button class="info-popup-close" onclick="closePopup('recallPopup')">&times;</button>
+        </div>
+        <div class="info-popup-content">
+            <p>Recall measures our system's ability to identify all fraudulent transactions:</p>
+            <ul>
+                <li>High recall means fewer fraudulent transactions are missed</li>
+                <li>Current recall: <span id="popupRecall">-</span></li>
+                <li>Essential for comprehensive fraud detection</li>
+                <li>Balanced with precision for optimal performance</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="info-popup" id="f1Popup">
+        <div class="info-popup-header">
+            <h3 class="info-popup-title">F1 Score</h3>
+            <button class="info-popup-close" onclick="closePopup('f1Popup')">&times;</button>
+        </div>
+        <div class="info-popup-content">
+            <p>The F1 Score provides a balanced measure of our fraud detection system's performance:</p>
+            <ul>
+                <li>Combines precision and recall into a single metric</li>
+                <li>Current F1 Score: <span id="popupF1">-</span></li>
+                <li>Ideal for imbalanced datasets like fraud detection</li>
+                <li>Higher score indicates better overall performance</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="info-popup" id="totalPopup">
+        <div class="info-popup-header">
+            <h3 class="info-popup-title">Total Transactions</h3>
+            <button class="info-popup-close" onclick="closePopup('totalPopup')">&times;</button>
+        </div>
+        <div class="info-popup-content">
+            <p>Total number of transactions processed by our fraud detection system:</p>
+            <ul>
+                <li>Real-time transaction counter</li>
+                <li>Includes both legitimate and fraudulent transactions</li>
+                <li>Current total: <span id="popupTotal">-</span></li>
+                <li>Continuously updated with each new transaction</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="info-popup" id="legitimatePopup">
+        <div class="info-popup-header">
+            <h3 class="info-popup-title">Legitimate Transactions</h3>
+            <button class="info-popup-close" onclick="closePopup('legitimatePopup')">&times;</button>
+        </div>
+        <div class="info-popup-content">
+            <p>Transactions identified as legitimate by our system:</p>
+            <ul>
+                <li>Transactions that passed fraud detection checks</li>
+                <li>Current count: <span id="popupLegitimate">-</span></li>
+                <li>Processed with minimal delay</li>
+                <li>Monitored for pattern analysis</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="info-popup" id="fraudulentPopup">
+        <div class="info-popup-header">
+            <h3 class="info-popup-title">Fraudulent Transactions</h3>
+            <button class="info-popup-close" onclick="closePopup('fraudulentPopup')">&times;</button>
+        </div>
+        <div class="info-popup-content">
+            <p>Transactions flagged as potentially fraudulent:</p>
+            <ul>
+                <li>High-risk transactions requiring attention</li>
+                <li>Current count: <span id="popupFraudulent">-</span></li>
+                <li>Automatically flagged for review</li>
+                <li>Pattern analysis for fraud prevention</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="info-popup-overlay" id="popupOverlay"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function formatTime(timestamp) {
+            return new Date(timestamp * 1000).toLocaleString();
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
+
+        function showPopup(popupId) {
+            document.getElementById(popupId).classList.add('active');
+            document.getElementById('popupOverlay').classList.add('active');
+        }
+
+        function closePopup(popupId) {
+            document.getElementById(popupId).classList.remove('active');
+            document.getElementById('popupOverlay').classList.remove('active');
+        }
+
+        function updateStatistics(statistics) {
+            const elements = {
+                total: document.getElementById('totalTransactions'),
+                legitimate: document.getElementById('legitimateTransactions'),
+                fraudulent: document.getElementById('fraudulentTransactions')
+            };
+            
+            Object.entries(elements).forEach(([key, element]) => {
+                element.parentElement.classList.add('statistics-update');
+                element.textContent = statistics[`${key}_transactions`];
+                
+                // Update popup values
+                const popupElement = document.getElementById(`popup${key.charAt(0).toUpperCase() + key.slice(1)}`);
+                if (popupElement) {
+                    popupElement.textContent = statistics[`${key}_transactions`];
+                }
+                
+                setTimeout(() => {
+                    element.parentElement.classList.remove('statistics-update');
+                }, 600);
+            });
+        }
+
+        function updateHeaderStats(statistics) {
+            const successRate = (statistics.legitimate_transactions / statistics.total_transactions * 100) || 0;
+            document.getElementById('headerSuccess').textContent = successRate.toFixed(2) + '%';
+        }
+
+        function displayCurrentTransaction(transaction) {
+            const card = document.getElementById('currentTransactionCard');
+            const details = document.getElementById('currentTransactionDetails');
+            
+            if (!transaction) {
+                card.style.display = 'none';
+                return;
+            }
+            
+            const probabilityPercentage = (transaction.probability * 100).toFixed(1);
+            const html = `
+                <div class="transaction-block ${transaction.prediction}">
+                    <div class="prediction-badge ${transaction.prediction}">
+                        <i class="fas ${transaction.prediction === 'Legitimate' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+                        ${transaction.prediction}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="amount-display">
+                                <i class="fas fa-dollar-sign"></i>
+                                <span>${formatCurrency(transaction.amount)}</span>
+                            </div>
+                            <div class="time-display">
+                                <i class="fas fa-clock"></i>
+                                <span>${formatTime(transaction.time)}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="transaction-details">
+                                <p><strong>Probability:</strong> ${probabilityPercentage}%</p>
+                                <div class="probability-bar">
+                                    <div class="progress ${transaction.prediction}" 
+                                         style="width: ${probabilityPercentage}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="hash-display">${transaction.block_hash || 'N/A'}</div>
+                        <div class="hash-display mt-2">${transaction.previous_hash || 'None'}</div>
+                    </div>
+                </div>
+            `;
+            
+            details.innerHTML = html;
+            card.style.display = 'block';
+        }
+
+        function displayBlockchain(transactions) {
+            const container = document.getElementById('recent-transactions-list');
+            
+            if (!transactions || !Array.isArray(transactions)) {
+                container.innerHTML = '<div class="text-center text-muted">No transactions available.</div>';
+                return;
+            }
+            
+            if (transactions.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted">No transactions yet. Start analyzing transactions to build the blockchain.</div>';
+                return;
+            }
+            
+            // Sort transactions by time in descending order (newest first)
+            const sortedTransactions = [...transactions].sort((a, b) => b.time - a.time);
+            
+            const html = sortedTransactions.map((tx, index) => {
+                const probabilityPercentage = (tx.probability * 100).toFixed(1);
+                return `
+                    <div class="transaction-block ${tx.prediction}">
+                        <div class="transaction-header">
+                            <h5>
+                                <i class="fas fa-link"></i>
+                                Block #${tx.block_index || index + 1}
+                                <small class="text-muted">(${formatTime(tx.time)})</small>
+                            </h5>
+                            <div class="prediction-badge ${tx.prediction}">
+                                <i class="fas ${tx.prediction === 'Legitimate' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+                                ${tx.prediction}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="amount-display">
+                                    <i class="fas fa-dollar-sign"></i>
+                                    <span>${formatCurrency(tx.amount)}</span>
+                                </div>
+                                <div class="transaction-details">
+                                    <p><strong>Probability:</strong> ${probabilityPercentage}%</p>
+                                    <div class="probability-bar">
+                                        <div class="progress ${tx.prediction}" 
+                                             style="width: ${probabilityPercentage}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="hash-display">
+                                    <strong>Block Hash:</strong>
+                                    <div class="hash-value">${tx.block_hash || 'N/A'}</div>
+                                </div>
+                                <div class="hash-display mt-2">
+                                    <strong>Previous Hash:</strong>
+                                    <div class="hash-value">${tx.previous_hash || 'None'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function resetBlockchain() {
+            const container = document.getElementById('recent-transactions-list');
+            container.innerHTML = '<div class="text-center text-muted">No transactions yet. Start analyzing transactions to build the blockchain.</div>';
+            
+            // Reset statistics
+            document.getElementById('totalTransactions').textContent = '0';
+            document.getElementById('legitimateTransactions').textContent = '0';
+            document.getElementById('fraudulentTransactions').textContent = '0';
+            
+            // Reset header stats
+            document.getElementById('headerSuccess').textContent = '0%';
+        }
+
+        // Add click handlers for info icons
+        document.addEventListener('DOMContentLoaded', function() {
+            // Accuracy info
+            document.getElementById('accuracy').addEventListener('click', function() {
+                showPopup('accuracyPopup');
+            });
+
+            // Blockchain info
+            document.querySelector('.blockchain-section h3').addEventListener('click', function() {
+                showPopup('blockchainPopup');
+            });
+
+            // Precision info
+            document.getElementById('precision').addEventListener('click', function() {
+                showPopup('precisionPopup');
+            });
+
+            // Recall info
+            document.getElementById('recall').addEventListener('click', function() {
+                showPopup('recallPopup');
+            });
+
+            // F1 Score info
+            document.getElementById('f1Score').addEventListener('click', function() {
+                showPopup('f1Popup');
+            });
+
+            // Close popup when clicking overlay
+            document.getElementById('popupOverlay').addEventListener('click', function() {
+                document.querySelectorAll('.info-popup').forEach(popup => {
+                    popup.classList.remove('active');
+                });
+                this.classList.remove('active');
+            });
+        });
+
+        // Handle form submission
+        document.getElementById('transactionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const amount = document.getElementById('amount').value;
+            const loadingOverlay = document.getElementById('loadingOverlay');
+
+            try {
+                loadingOverlay.style.display = 'flex';
+                
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        amount: parseFloat(amount),
+                        reset_blockchain: false
+                    }),
+                });
+
+                const result = await response.json();
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                // Update UI components
+                displayCurrentTransaction(result.current_transaction);
+                displayBlockchain(result.all_transactions || []);
+                updateStatistics(result.statistics || {});
+                updateHeaderStats(result.statistics || {});
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            } finally {
+                loadingOverlay.style.display = 'none';
+            }
+        });
+
+        // Add reset button to blockchain section
+        document.addEventListener('DOMContentLoaded', function() {
+            const blockchainHeader = document.querySelector('.blockchain-section h3');
+            const resetButton = document.createElement('button');
+            resetButton.className = 'btn btn-sm btn-outline-danger ms-3';
+            resetButton.innerHTML = '<i class="fas fa-sync-alt"></i> Reset Blockchain';
+            resetButton.onclick = async function() {
+                if (confirm('Are you sure you want to reset the blockchain? This will clear all transaction history.')) {
+                    try {
+                        const response = await fetch('/reset_blockchain', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            resetBlockchain();
+                            alert('Blockchain has been reset successfully.');
+                        } else {
+                            throw new Error('Failed to reset blockchain');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error: ' + error.message);
+                    }
+                }
+            };
+            blockchainHeader.appendChild(resetButton);
+        });
+
+        // Fetch initial metrics
+        fetch('/metrics')
+            .then(response => response.json())
+            .then(metrics => {
+                // Update display metrics
+                document.getElementById('accuracy').textContent = (metrics.accuracy * 100).toFixed(2) + '%';
+                document.getElementById('precision').textContent = (metrics.precision * 100).toFixed(2) + '%';
+                document.getElementById('recall').textContent = (metrics.recall * 100).toFixed(2) + '%';
+                document.getElementById('f1Score').textContent = (metrics.f1_score * 100).toFixed(2) + '%';
+
+                // Update popup metrics
+                document.getElementById('popupAccuracy').textContent = (metrics.accuracy * 100).toFixed(2) + '%';
+                document.getElementById('popupPrecision').textContent = (metrics.precision * 100).toFixed(2) + '%';
+                document.getElementById('popupRecall').textContent = (metrics.recall * 100).toFixed(2) + '%';
+                document.getElementById('popupF1').textContent = (metrics.f1_score * 100).toFixed(2) + '%';
+
+                // Update header stats
+                document.getElementById('headerAccuracy').textContent = (metrics.accuracy * 100).toFixed(2) + '%';
+                document.getElementById('headerSuccess').textContent = (metrics.precision * 100).toFixed(2) + '%';
+            })
+            .catch(error => console.error('Error fetching metrics:', error));
+    </script>
+</body>
+</html> 
